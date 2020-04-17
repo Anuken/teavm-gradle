@@ -15,7 +15,6 @@ repositories{
 dependencies{
     compile gradleApi()
     compile localGroovy()
-    //compile "org.teavm:teavm-core:$teavmVersion"
     compile "org.teavm:teavm-tooling:$teavmVersion"
 }
 

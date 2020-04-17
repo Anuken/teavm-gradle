@@ -1,5 +1,6 @@
 package teavm.gradle;
 
+import groovy.lang.*;
 import org.gradle.api.*;
 import org.gradle.api.artifacts.*;
 import org.gradle.api.plugins.*;
@@ -23,6 +24,8 @@ public class TeaVMTask extends DefaultTask{
     public boolean obfuscate = true;
     public boolean incremental = true;
     public TeaVMOptimizationLevel optimization = TeaVMOptimizationLevel.ADVANCED;
+    public TeaVMTargetType target = TeaVMTargetType.JAVASCRIPT;
+    public Closure<TeaVMTool> config;
 
     @TaskAction
     public void compTeaVM(){
@@ -69,11 +72,21 @@ public class TeaVMTask extends DefaultTask{
         tool.setOptimizationLevel(optimization);
         tool.setIncremental(incremental);
         tool.setSourceFilesCopied(copySources);
+        tool.setTargetType(target);
         tool.setSourceMapsFileGenerated(generateSourceMap);
 
-        ClassLoader classLoader = prepareClassLoader();
+        if(config != null){
+            config.call(tool);
+        }
+
         try{
-            tool.setClassLoader(classLoader);
+            Configuration it = getProject().getConfigurations().getByName("runtime");
+
+            List<URL> urls = new ArrayList<>();
+            for(File file : it.getFiles()) urls.add(file.toURI().toURL());
+            for(File file : it.getAllArtifacts().getFiles()) urls.add(file.toURI().toURL());
+
+            tool.setClassLoader(new URLClassLoader(urls.toArray(new URL[0]), getClass().getClassLoader()));
             tool.generate();
 
             String issues = tool.getProblemProvider().getProblems().stream().map(p -> {
@@ -87,20 +100,6 @@ public class TeaVMTask extends DefaultTask{
             }
         }catch(Exception e){
             throw new RuntimeException(e);
-        }
-    }
-
-    private URLClassLoader prepareClassLoader(){
-        try{
-            Configuration it = getProject().getConfigurations().getByName("runtime");
-
-            List<URL> urls = new ArrayList<>();
-            for(File file : it.getFiles()) urls.add(file.toURI().toURL());
-            for(File file : it.getAllArtifacts().getFiles()) urls.add(file.toURI().toURL());
-
-            return new URLClassLoader(urls.toArray(new URL[0]), getClass().getClassLoader());
-        }catch(MalformedURLException e){
-            throw new GradleException("Error gathering classpath information", e);
         }
     }
 }
