@@ -26,6 +26,7 @@ public class TeaVMTask extends DefaultTask{
     public TeaVMOptimizationLevel optimization = TeaVMOptimizationLevel.ADVANCED;
     public TeaVMTargetType target = TeaVMTargetType.JAVASCRIPT;
     public Closure<TeaVMTool> config;
+    public String mainClass;
 
     @TaskAction
     public void compTeaVM(){
@@ -34,10 +35,6 @@ public class TeaVMTask extends DefaultTask{
 
         tool.setTargetDirectory(new File(installDirectory));
         tool.setTargetFileName(targetFileName);
-
-        if(project.hasProperty("mainClassName") && project.property("mainClassName") != null){
-            tool.setMainClass((String)project.property("mainClassName"));
-        }else throw new RuntimeException("mainClassName not found!");
 
         Consumer<File> addSrc = f -> {
             if(f.isFile()){
@@ -74,6 +71,11 @@ public class TeaVMTask extends DefaultTask{
         tool.setSourceFilesCopied(copySources);
         tool.setTargetType(target);
         tool.setSourceMapsFileGenerated(generateSourceMap);
+        if(mainClass != null){
+            tool.setMainClass(mainClass);
+        }else{
+            throw new RuntimeException("mainClass not defined!");
+        }
 
         if(config != null){
             config.call(tool);
