@@ -82,7 +82,9 @@ public class TeaVMTask extends DefaultTask{
         try{
             Configuration it = getProject().getConfigurations().getByName("runtime");
 
+
             List<URL> urls = new ArrayList<>();
+            for(File file : new File(project.getBuildDir(), "libs").listFiles()) urls.add(file.toURI().toURL());
             for(File file : it.getFiles()) urls.add(file.toURI().toURL());
             for(File file : it.getAllArtifacts().getFiles()) urls.add(file.toURI().toURL());
 
