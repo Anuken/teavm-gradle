@@ -1,0 +1,21 @@
+apply plugin: 'java-gradle-plugin'
+
+group "anuke.teavm"
+version = '1.0.0'
+
+ext{
+    teavmVersion = '0.7.0-dev-1087'
+}
+
+repositories{
+    maven{ url "https://dl.bintray.com/konsoletyper/teavm" }
+    mavenCentral()
+}
+
+dependencies{
+    compile gradleApi()
+    compile localGroovy()
+    //compile "org.teavm:teavm-core:$teavmVersion"
+    compile "org.teavm:teavm-tooling:$teavmVersion"
+}
+
