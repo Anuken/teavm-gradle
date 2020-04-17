@@ -32,9 +32,9 @@ public class TeaVMPlugin implements Plugin<Project>{
         ), "teavmc");
     }
 
-    private Map<String, String> map(Object... keys){
-        HashMap<String, String> out = new HashMap<>();
-        for(int i = 0; i < keys.length; i += 2) out.put((String)keys[i], (String)keys[i + 1]);
+    private Map<String, Object> map(Object... keys){
+        HashMap<String, Object> out = new HashMap<>();
+        for(int i = 0; i < keys.length; i += 2) out.put((String)keys[i], keys[i + 1]);
         return out;
     }
 }
